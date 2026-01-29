@@ -6,9 +6,5 @@ Write-Host "Running frontend smoke test script..." -ForegroundColor Cyan
 
 $env:API_BASE_URL = $ApiBaseUrl
 
-Push-Location "C:\Users\mqondisi.zulu\source\repos\RealRealianceBank\RealReliance"
-try {
-    npm run smoke:api
-} finally {
-    Pop-Location
-}
+$frontendPath = "C:\Users\mqondisi.zulu\source\repos\RealRealianceBank\RealReliance"
+npm --prefix $frontendPath run smoke:api
