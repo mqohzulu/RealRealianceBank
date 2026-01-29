@@ -1,5 +1,5 @@
 param(
-    [string]$ApiBaseUrl = "http://localhost:8080/api"
+    [string]$ApiBaseUrl = "https://localhost:7191/api"
 )
 
 Write-Host "Running frontend smoke test script..." -ForegroundColor Cyan
