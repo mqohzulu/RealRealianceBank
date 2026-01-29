@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: realreliance-sql
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=SecureSA@Password123!
+      - MSSQL_PID=Express
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+      - ./init.sql:/usr/src/init.sql  # Changed path
+    networks:
+      - realreliance-network
+    restart: unless-stopped
+    command: >
+      bash -c "
+      /opt/mssql/bin/sqlservr &
+      sleep 30
+      /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P $$SA_PASSWORD -i /usr/src/init.sql
+      wait
+      "
+
+  api:
+    build:
+      context: ./RealRelianceBankingAPI-backEnd
+      dockerfile: Dockerfile
+    container_name: realreliance-api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__SqlServer=Server=sqlserver;Database=RealRelianceBankDB;User Id=bob.builder@example.com;Password=pass1;TrustServerCertificate=true;MultipleActiveResultSets=true
+    ports:
+      - "8080:8080"
+    depends_on:
+      - sqlserver
+    networks:
+      - realreliance-network
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./REALRELIANCE
+      dockerfile: Dockerfile
+    container_name: realreliance-ui
+    ports:
+      - "4200:4200"
+    depends_on:
+      - api
+    networks:
+      - realreliance-network
+    restart: unless-stopped
+
+networks:
+  realreliance-network:
+    driver: bridge
+
+volumes:
+  sqlserver-data:
