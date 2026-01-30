@@ -129,6 +129,8 @@ BEGIN
         Email NVARCHAR(100) NOT NULL UNIQUE,
         Password NVARCHAR(100) NOT NULL,
         Role NVARCHAR(50) NOT NULL,
+        RefreshToken NVARCHAR(512) NULL,
+        RefreshTokenExpires DATETIME2 NULL,
         ActiveInd BIT NOT NULL DEFAULT 1,
         CreatedDate DATETIME2 DEFAULT GETDATE(),
         ModifiedDate DATETIME2 DEFAULT GETDATE()
@@ -138,6 +140,21 @@ END
 ELSE
 BEGIN
     PRINT 'Users table already exists.';
+END
+GO
+
+-- Ensure refresh token columns exist on Users table
+IF COL_LENGTH('Users', 'RefreshToken') IS NULL
+BEGIN
+    ALTER TABLE Users ADD RefreshToken NVARCHAR(512) NULL;
+    PRINT 'Users.RefreshToken column added.';
+END
+GO
+
+IF COL_LENGTH('Users', 'RefreshTokenExpires') IS NULL
+BEGIN
+    ALTER TABLE Users ADD RefreshTokenExpires DATETIME2 NULL;
+    PRINT 'Users.RefreshTokenExpires column added.';
 END
 GO
 
